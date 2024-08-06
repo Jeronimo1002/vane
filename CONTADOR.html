@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIARIO CON CONTADOR</title>
+    <!-- Enlace a Font Awesome para usar iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+  body {
+    background-color: skyblue;
+    margin: 0;
+    font-family: Arial, sans-serif; /* Fuente principal */
+    padding: 0;
+    box-sizing: border-box;
+    position: relative; /* Necesario para posicionar los elementos fijos */
+}
+
+#timeElapsed {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    text-align: right;
+    font-size: smaller;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    font-family: 'Courier New', Courier, monospace; /* Tipografía del reloj */
+}
+
+#timeElapsed h2 {
+    font-size: 1em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#time {
+    display: flex;
+    font-size: 2em;
+    font-weight: bold;
+    color: #111;
+    letter-spacing: 0.1em;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    justify-content: flex-end;
+    width: fit-content;
+}
+
+#time span {
+    margin: 0 2px;
+}
+
+.container {
+    width: 90%;
+    max-width: 600px; /* Asegurarse de que el contenedor no sea demasiado ancho */
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 0 auto; /* Centrar horizontalmente */
+    position: relative;
+    margin-top: 05px; /* Espacio para el contador en la parte superior */
+    margin-bottom: 10px; /* Espacio para el formulario en la parte inferior */
+    overflow-y: auto; /* Permitir desplazamiento vertical */
+    max-height: calc(100vh - 40px); /* Limitar la altura para el desplazamiento */
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    z-index: 10;
+    text-align: center;
+}
+
+.comments-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 0px; /* Espacio para el formulario */
+}
+
+.comment-form {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.comment-form input[type="text"],
+.comment-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.comment-form .controls {
+    display: flex;
+    align-items: center;
+}
+
+.comment-form .icon-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #007BFF;
+    margin-left: 10px;
+}
+
+.comment-form #imagePreview {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    position: relative;
+}
+
+.comment-form #removeImage {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.comments {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.comment {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.comment time {
+    display: block;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.comment img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.comment .author {
+    font-weight: bold;
+    margin-top: 5px;
+    color: #333;
+}
+
+/* Media queries para pantallas más pequeñas */
+@media (max-width: 600px) {
+    #timeElapsed {
+        font-size: 0.8em;
+        padding: 8px;
+    }
+    #time {
+        font-size: 1.5em;
+        padding: 8px 10px;
+    }
+    .container {
+        padding: 10px;
+        max-width: 100%;
+    }
+    .comment-form input[type="text"],
+    .comment-form textarea {
+        padding: 8px;
+        font-size: 0.9em;
+    }
+    .comment-form .icon-button {
+        font-size: 1.2em;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 1199px) {
+    #timeElapsed {
+        font-size: 0.9em;
+        padding: 10px;
+    }
+    #time {
+        font-size: 1.8em;
+        padding: 10px 12px;
+    }
+    .container {
+        padding: 15px;
+    }
+    .comment-form input[type="text"],
+    .comment-form textarea {
+        padding: 10px;
+        font-size: 1em;
+    }
+    .comment-form .icon-button {
+        font-size: 1.5em;
+    }
+}
+
+@media (min-width: 1200px) {
+    #timeElapsed {
+        font-size: 1em;
+        padding: 10px;
+    }
+    #time {
+        font-size: 2.5em;
+        padding: 15px 20px;
+    }
+    .container {
+        padding: 20px;
+    }
+    .comment-form input[type="text"],
+    .comment-form textarea {
+        padding: 12px;
+        font-size: 1.1em;
+    }
+    .comment-form .icon-button {
+        font-size: 1.8em;
+    }
+}
+
+.instagram-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 100%;
+    max-width: 500px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        /* Estilos para el recuadro con el reproductor y mensaje */
+        .audio-wrapper {
+            position: fixed;
+            bottom: 20px;
+            right: 190px;
+            width: 300px; /* Ajusta el ancho si es necesario */
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            text-align: center;
+            z-index: 1000;
+        }
+        .audio-wrapper h1 {
+            margin-top: 0;
+            font-size: 1.4em;
+            color: #2c3e50; /* Color gris oscuro */
+            font-weight: bold;
+        }
+        .audio-wrapper p {
+            font-size: 1.1em;
+            color: #34495e; /* Color gris medio */
+            margin: 10px 0;
+        }
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+        /* Estilos para el cuadro de diálogo */
+        .dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .dialog {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .dialog h2 {
+            margin-top: 0;
+            color: #e74c3c; /* Color rojo amoroso */
+        }
+        .dialog p {
+            font-size: 1.2em;
+            color: #555;
+        }
+        .dialog button {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .dialog button:hover {
+            background: #c0392b;
+        }
+{
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+
+        }
+        #note-container {
+            width: 90%;
+            max-width: 300px; /* Ajuste del tamaño del post-it */
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            background-color: #fff9b0; /* Color típico de un post-it */
+            border-radius: 10px 10px 50px 10px; /* Bordes redondeados y uno de ellos más grande para parecer un papel doblado */
+            position: fixed;
+            top: 45%; /* Posición vertical media */
+            left: 20px; /* Ajusta la distancia desde la parte izquierda */
+            transform: translateY(-50%); /* Ajusta la posición para centrar verticalmente */
+text-align: center;
+        }
+        #note-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 60px;
+            height: 20px;
+            background-color: #fffa75;
+            transform: rotate(-20deg);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        #notes {
+            width: 100%;
+            height: 200px; /* Ajuste de altura del post-it */
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            resize: none;
+            border-radius: 4px;
+            background-color: #fff9b0; /* Coincide con el color de fondo */
+            outline: none; /* Quitar el borde al enfocar */
+        }
+        #save-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-top: 10px;
+        }
+        #save-button:hover {
+            background-color: #45a049;
+        }
+{
+            font-family: 'Poppins', sans-serif;
+            background-color: #fef3f3;
+            color: #444;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+       h3 {
+            color: #8623E2;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+text-align: center;
+        }
+
+        .calendar-container {
+            position: fixed;
+            top: calc(50% + 130px);
+            left: 0;
+            width: 20vw;
+            height: 10vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .month {
+            font-size: 1.2rem;
+            color: #000000;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            padding: 4px;
+        }
+        .calendar div {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+            cursor: pointer;
+        }
+        .calendar div.past {
+            background-color: #f8b0b0;
+            color: #c0392b;
+            text-decoration: line-through;
+        }
+        .calendar div.today {
+            background-color: #f39c12;
+            color: white;
+            font-weight: bold;
+        }
+        .calendar div.future {
+            background-color: #fff;
+            color: #444;
+        }
+        .calendar .day-name {
+            font-weight: bold;
+            background-color: #ff6f61;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 0;
+            font-size: 10px;
+        }
+        .calendar div:hover {
+            background-color: #f7b7a3;
+        }
+        /* Estilo del modal */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5); 
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 20% auto; 
+            padding: 15px; 
+            border: 1px solid #888; 
+            width: 80%; 
+            max-width: 320px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .modal-header {
+            font-size: 1.2rem;
+            color: #e67e22;
+            margin-bottom: 10px;
+        }
+        .modal-body {
+            font-size: 1rem;
+            color: #444;
+            margin-bottom: 20px;
+        }
+        .modal-footer {
+            text-align: center;
+        }
+        .modal-close {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .modal-close:hover {
+            background-color: #d35400;
+        }
+
+iframe {
+    width: 100%;
+    height: 510px;
+    border: none;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Diario</h1>
+        </div>
+
+        <div class="comments-container">
+            <!-- Los comentarios se mostrarán aquí -->
+            <ul class="comments"></ul>
+        </div>
+
+        <div class="comment-form">
+            <input type="text" id="username" placeholder="Tu nombre..." required>
+            <textarea id="commentText" placeholder="Escribe aquí..." rows="4" required></textarea>
+            <img id="imagePreview" style="display: none;">
+            <button id="removeImage" style="display: none;" onclick="removeImage()">&#10006;</button>
+            <div class="controls">
+                <label for="imageUpload" class="icon-button">
+                    <i class="fas fa-camera"></i>
+                    <input type="file" id="imageUpload" style="display: none;" accept="image/*" onchange="previewImage(event)">
+                </label>
+                <button class="icon-button" onclick="addComment()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="timeElapsed">
+        <h2>Desde el 25 de julio de 2024 a las 3:40 am:</h2>
+        <div id="time">
+            <span id="days">000</span>:<span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+        </div>
+    </div>
+
+    <div class="instagram-container">
+        <div class="instagram-header">
+            <h2>Checa mis historias</h2>
+            <h5>"Buenos días y Buenas noches"</h5>
+        </div>
+        <iframe src="https://www.instagram.com/jeronimofarfan0/embed" title="Instagram Profile"></iframe>
+    </div>
+
+<!-- Contenedor del reproductor y mensaje en la esquina inferior derecha -->
+    <div class="audio-wrapper">
+        <h1>Dedicatoria Musical</h1>
+        <p>¡Escucha esta canción especial dedicada para ti!</p>
+        <audio id="audioPlayer" controls>
+            <source src="D:\alanm\Music/1.mp3" type="audio/mp3">
+            <p>Tu navegador no soporta el elemento de audio. <a href="audio/tu-cancion.mp3">Descarga la canción aquí</a>.</p>
+        </audio>
+    </div>
+
+    
+<div id="note-container">
+        <h2>Notas Diarias</h2> 
+        <textarea id="notes" placeholder="Escribe tus notas aquí..."></textarea>
+        <br>
+        <button id="save-button">Guardar Nota</button>
+    </div>
+
+
+ <div class="calendar-container">
+
+<h3>YA CASI ES TU CUMPLE!!</h3>
+        <div class="month" id="month"></div>
+        <div class="calendar" id="calendar"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="birthdayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                ¡Feliz Cumpleaños, Vane!
+            </div>
+            <div class="modal-body">
+                🎉✨ ¡Feliz cumpleaños a la niña más bonita del mundo! 🎈🎂
+                <br><br>
+                Que tu día esté lleno de amor y alegría. 💖
+            </div>
+            <div class="modal-footer">
+                <button class="modal-close" onclick="closeModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const imagePreview = document.getElementById('imagePreview');
+            const removeImageButton = document.getElementById('removeImage');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    removeImageButton.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+                removeImageButton.style.display = 'none';
+            }
+        }
+
+        function removeImage() {
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('removeImage').style.display = 'none';
+            document.getElementById('imageUpload').value = '';
+        }
+
+        function addComment() {
+            var username = document.getElementById('username').value;
+            var commentText = document.getElementById('commentText').value;
+            var imageUrl = document.getElementById('imagePreview').src;
+
+            if (username.trim() === "" || commentText.trim() === "") {
+                alert("El nombre y el comentario no pueden estar vacíos.");
+                return;
+            }
+
+            if (imageUrl === '') {
+                saveAndDisplayComment(username, commentText, null);
+            } else {
+                saveAndDisplayComment(username, commentText, imageUrl);
+            }
+        }
+
+        function saveAndDisplayComment(username, text, imageUrl) {
+            var now = new Date();
+            var timestamp = now.toLocaleString();
+
+            var comment = {
+                username: username,
+                text: text,
+                imageUrl: imageUrl,
+                timestamp: timestamp
+            };
+
+            var comments = JSON.parse(localStorage.getItem('comments')) || [];
+            comments.push(comment);
+            localStorage.setItem('comments', JSON.stringify(comments));
+
+            displayComment(comment);
+
+            document.getElementById('username').value = '';
+            document.getElementById('commentText').value = '';
+            document.getElementById('imageUpload').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('removeImage').style.display = 'none';
+        }
+
+        function displayComment(comment) {
+            var commentElement = document.createElement('li');
+            commentElement.className = 'comment';
+
+            var timeElement = document.createElement('time');
+            timeElement.textContent = "Publicado el: " + comment.timestamp;
+
+            var authorElement = document.createElement('p');
+            authorElement.className = 'author';
+            authorElement.textContent = "Publicado por: " + comment.username;
+
+            var commentContent = document.createElement('p');
+            commentContent.textContent = comment.text;
+
+            commentElement.appendChild(timeElement);
+            commentElement.appendChild(authorElement);
+            commentElement.appendChild(commentContent);
+
+            if (comment.imageUrl) {
+                var imageElement = document.createElement('img');
+                imageElement.src = comment.imageUrl;
+                commentElement.appendChild(imageElement);
+            }
+
+            var commentsList = document.querySelector('.comments');
+            commentsList.appendChild(commentElement);
+        }
+
+        function loadComments() {
+            var comments = JSON.parse(localStorage.getItem('comments')) || [];
+            comments.forEach(function(comment) {
+                displayComment(comment);
+            });
+        }
+
+        loadComments();
+
+        function updateTimeElapsed() {
+            const startDate = new Date('July 25, 2024 03:40:00');
+            const now = new Date();
+            const elapsedTime = now - startDate;
+
+            const seconds = Math.floor((elapsedTime / 1000) % 60);
+            const minutes = Math.floor((elapsedTime / 1000 / 60) % 60);
+            const hours = Math.floor((elapsedTime / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(elapsedTime / (1000 * 60 * 60 * 24));
+
+            document.getElementById('days').innerText = String(days).padStart(3, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+document.getElementById('audioPlayer').addEventListener('ended', function() {
+            document.getElementById('dialogOverlay').style.display = 'flex';
+        });
+
+        function closeDialog() {
+            document.getElementById('dialogOverlay').style.display = 'none';
+        }
+const notesArea = document.getElementById('notes');
+        const saveButton = document.getElementById('save-button');
+
+        // Cargar la nota guardada al cargar la página
+        window.onload = function() {
+            const savedNotes = localStorage.getItem('dailyNotes');
+            if (savedNotes) {
+                notesArea.value = savedNotes;
+            }
+        };
+
+        // Guardar las notas en el almacenamiento local
+        saveButton.addEventListener('click', function() {
+            localStorage.setItem('dailyNotes', notesArea.value);
+            alert('Nota guardada!');
+        });
+const targetDate = new Date('2024-09-06');
+        const today = new Date();
+        const calendar = document.getElementById('calendar');
+        const monthElement = document.getElementById('month');
+        const modal = document.getElementById('birthdayModal');
+
+        // Obtener el nombre del mes y el año
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const month = monthNames[today.getMonth()];
+        const year = today.getFullYear();
+        monthElement.textContent = `${month} ${year}`;
+
+        // Crear nombres de los días
+        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        daysOfWeek.forEach(day => {
+            calendar.innerHTML += `<div class="day-name">${day}</div>`;
+        });
+
+        const daysInMonth = new Date(year, today.getMonth() + 1, 0).getDate();
+        const firstDayOfMonth = new Date(year, today.getMonth(), 1).getDay();
+        
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            calendar.innerHTML += '<div></div>'; // Celdas vacías para los días antes del inicio del mes
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const currentDay = new Date(year, today.getMonth(), day);
+            const className = currentDay < today ? 'past' : (currentDay.toDateString() === today.toDateString() ? 'today' : 'future');
+            calendar.innerHTML += `<div class="${className}">${day}</div>`;
+        }
+
+        function showModal() {
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Mostrar el modal si hoy es el día del cumpleaños
+        if (today.toDateString() === targetDate.toDateString()) {
+            showModal();
+        }
+
+setInterval(updateTimeElapsed, 1000); // Actualiza cada segundo
+    </script>
+</body>
+</html>
